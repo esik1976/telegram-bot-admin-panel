@@ -80,6 +80,35 @@ C:\venvs\tg-admin-panel\Scripts\python.exe -m uvicorn app.main:app --reload
 - Errors: `http://127.0.0.1:8000/errors`
 - Active bot settings API: `http://127.0.0.1:8000/api/bot/settings/active`
 
+API documentation:
+
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
+
+REST API:
+
+- `GET /api/users`
+- `GET /api/messages`
+- `GET /api/errors`
+- `GET /api/prompts/active`
+- `POST /api/prompts`
+- `GET /api/settings/active`
+- `PUT /api/settings/active`
+- `POST /api/bot/events/user`
+- `POST /api/bot/events/message`
+- `POST /api/bot/events/error`
+
+Internal bot event endpoints require this HTTP header:
+
+```http
+X-Internal-API-Token: value-from-INTERNAL_API_TOKEN
+```
+
+Worker modes:
+
+- `WORKER_MODE=service` - bot worker calls application services and database directly.
+- `WORKER_MODE=api` - bot worker sends users, messages and errors to the Backend API.
+
 ## Telegram Bot Worker
 
 Перед запуском укажи настоящий токен в `.env`:

@@ -58,6 +58,9 @@ OPENROUTER_API_KEY=replace-with-openrouter-key
 OLLAMA_BASE_URL=http://localhost:11434
 DEFAULT_MODEL=qwen/qwen-2.5-7b-instruct
 HTTP_SSL_VERIFY=true
+INTERNAL_API_TOKEN=replace-with-long-random-internal-token
+BACKEND_API_URL=https://your-railway-service.up.railway.app
+WORKER_MODE=api
 ```
 
 Примечание: Railway PostgreSQL обычно отдает `DATABASE_URL` в формате `postgresql://...`. Приложение автоматически преобразует его в `postgresql+psycopg://...`, чтобы SQLAlchemy использовал установленный драйвер `psycopg`.

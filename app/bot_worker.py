@@ -4,6 +4,7 @@ from telegram import Update
 from telegram.request import HTTPXRequest
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
+from app.api_client import BackendApiClient
 from app.config import get_settings
 from app.db import SessionLocal
 from app.llm import generate_answer
@@ -30,6 +31,37 @@ async def answer_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     try:
         await update.message.chat.send_action("typing")
+
+        if app_settings.worker_mode.lower() == "api":
+            api = BackendApiClient(app_settings)
+            user_data = {
+                "telegram_id": update.effective_user.id,
+                "username": update.effective_user.username,
+                "first_name": update.effective_user.first_name,
+                "last_name": update.effective_user.last_name,
+                "language_code": update.effective_user.language_code,
+            }
+            await api.log_message(
+                **user_data,
+                direction="inbound",
+                content=update.message.text,
+            )
+            bot_settings = await api.get_active_bot_settings()
+            answer = await generate_answer(
+                user_message=update.message.text,
+                system_prompt=bot_settings.system_prompt,
+                bot_settings=bot_settings,
+                app_settings=app_settings,
+            )
+            await api.log_message(
+                **user_data,
+                direction="outbound",
+                content=answer,
+                provider=bot_settings.provider,
+                model=bot_settings.model,
+            )
+            await update.message.reply_text(answer)
+            return
 
         with SessionLocal() as db:
             telegram_user = upsert_telegram_user(
@@ -69,9 +101,24 @@ async def answer_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await update.message.reply_text(answer)
     except Exception as exc:
         logger.exception("Bot message processing failed")
-        with SessionLocal() as db:
-            log_error(db, source="bot", error=exc, telegram_user=telegram_user)
-            db.commit()
+        if app_settings.worker_mode.lower() == "api" and update.effective_user is not None:
+            try:
+                api = BackendApiClient(app_settings)
+                await api.log_error(
+                    source="bot",
+                    error=exc,
+                    telegram_id=update.effective_user.id,
+                    username=update.effective_user.username,
+                    first_name=update.effective_user.first_name,
+                    last_name=update.effective_user.last_name,
+                    language_code=update.effective_user.language_code,
+                )
+            except Exception:
+                logger.exception("Bot API error logging failed")
+        else:
+            with SessionLocal() as db:
+                log_error(db, source="bot", error=exc, telegram_user=telegram_user)
+                db.commit()
         await update.message.reply_text("Не смог обработать сообщение. Ошибка сохранена в журнале.")
 
 
