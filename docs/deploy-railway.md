@@ -60,6 +60,8 @@ DEFAULT_MODEL=qwen/qwen-2.5-7b-instruct
 HTTP_SSL_VERIFY=true
 ```
 
+Примечание: Railway PostgreSQL обычно отдает `DATABASE_URL` в формате `postgresql://...`. Приложение автоматически преобразует его в `postgresql+psycopg://...`, чтобы SQLAlchemy использовал установленный драйвер `psycopg`.
+
 Для локального Ollama на Railway `OLLAMA_BASE_URL=http://localhost:11434` не подойдет, если Ollama не развернута отдельным сервисом. Для облачного деплоя проще использовать OpenRouter.
 
 ## 4. Локальная Проверка Перед Деплоем

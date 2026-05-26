@@ -54,6 +54,8 @@ DATABASE_URL=sqlite:///C:/Users/IStankevichus/AppData/Local/tg-admin-panel/bot_a
 DATABASE_URL=postgresql+psycopg://user:password@host:5432/bot_admin
 ```
 
+Railway PostgreSQL может отдавать `DATABASE_URL` в формате `postgresql://...`. Приложение автоматически преобразует его в `postgresql+psycopg://...`, чтобы использовать установленный драйвер `psycopg`.
+
 Запуск web-приложения:
 
 ```powershell
