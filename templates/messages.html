@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="page-header">
+    <p class="eyebrow">Messages</p>
+    <h1>Message Log</h1>
+    <p>Последние входящие и исходящие сообщения. Здесь видно, что бот сохраняет историю диалога.</p>
+  </section>
+
+  <section class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>User</th>
+          <th>Direction</th>
+          <th>Type</th>
+          <th>Model</th>
+          <th>Content</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for message in messages %}
+          <tr>
+            <td>{{ message.created_at }}</td>
+            <td>{{ message.telegram_user.username or message.telegram_user.telegram_id }}</td>
+            <td><span class="badge {{ message.direction }}">{{ message.direction }}</span></td>
+            <td>{{ message.content_type }}</td>
+            <td>{{ message.model or "-" }}</td>
+            <td class="content-cell">{{ message.content or "-" }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6" class="empty-cell">Пока нет сообщений.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}

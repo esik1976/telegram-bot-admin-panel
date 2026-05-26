@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <nav class="nav-links" aria-label="Admin navigation">
+          <a href="/" class="{{ 'active' if active_page == 'dashboard' else '' }}">Dashboard</a>
+          <a href="/prompts" class="{{ 'active' if active_page == 'prompts' else '' }}">Prompt</a>
+          <a href="/settings" class="{{ 'active' if active_page == 'settings' else '' }}">Settings</a>
+          <a href="/users" class="{{ 'active' if active_page == 'users' else '' }}">Users</a>
+          <a href="/messages" class="{{ 'active' if active_page == 'messages' else '' }}">Messages</a>
+          <a href="/errors" class="{{ 'active' if active_page == 'errors' else '' }}">Errors</a>
+        </nav>
+        <form method="post" action="/logout">
+          <button type="submit" class="secondary-button">Выйти</button>
+        </form>
+      </header>
+
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

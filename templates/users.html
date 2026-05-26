@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="page-header">
+    <p class="eyebrow">Users</p>
+    <h1>Telegram Users</h1>
+    <p>Пользователи, которые писали боту. Список обновляется после новых сообщений в Telegram.</p>
+  </section>
+
+  <section class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Telegram ID</th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Language</th>
+          <th>Messages</th>
+          <th>Last seen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.telegram_id }}</td>
+            <td>{{ user.username or "-" }}</td>
+            <td>{{ [user.first_name, user.last_name] | select | join(" ") or "-" }}</td>
+            <td>{{ user.language_code or "-" }}</td>
+            <td>{{ user.message_count }}</td>
+            <td>{{ user.last_seen_at }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6" class="empty-cell">Пока нет пользователей.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}

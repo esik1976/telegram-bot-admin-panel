@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="page-header">
+    <p class="eyebrow">Errors</p>
+    <h1>Error Log</h1>
+    <p>Ошибки Telegram, LLM и backend-логики. Новые ошибки появляются здесь после сбоя worker-а.</p>
+  </section>
+
+  <section class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Source</th>
+          <th>Type</th>
+          <th>User</th>
+          <th>Resolved</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for error in errors %}
+          <tr>
+            <td>{{ error.created_at }}</td>
+            <td>{{ error.source }}</td>
+            <td>{{ error.error_type }}</td>
+            <td>
+              {% if error.telegram_user %}
+                {{ error.telegram_user.username or error.telegram_user.telegram_id }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>{{ "yes" if error.resolved else "no" }}</td>
+            <td class="content-cell">{{ error.message }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6" class="empty-cell">Пока нет ошибок.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}

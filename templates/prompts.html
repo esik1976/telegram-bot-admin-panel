@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="page-header">
+    <p class="eyebrow">Prompt</p>
+    <h1>System Prompt</h1>
+    <p>Этот текст будет использоваться ботом как активная инструкция для новых сообщений.</p>
+  </section>
+
+  {% if saved %}
+    <p class="notice">Prompt сохранен.</p>
+  {% endif %}
+
+  <form method="post" action="/prompts" class="panel-form">
+    <label for="content">Активный system prompt</label>
+    <textarea id="content" name="content" rows="12" required>{{ prompt.content }}</textarea>
+    <button type="submit">Сохранить prompt</button>
+  </form>
+{% endblock %}
