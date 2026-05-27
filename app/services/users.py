@@ -1,7 +1,7 @@
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import TelegramUser, utc_now
+from app.repositories.users import TelegramUserRepository
 
 
 def upsert_telegram_user(
@@ -13,7 +13,8 @@ def upsert_telegram_user(
     last_name: str | None,
     language_code: str | None,
 ) -> TelegramUser:
-    user = db.scalars(select(TelegramUser).where(TelegramUser.telegram_id == telegram_id)).first()
+    users = TelegramUserRepository(db)
+    user = users.get_by_telegram_id(telegram_id)
     if user is None:
         user = TelegramUser(
             telegram_id=telegram_id,
@@ -23,8 +24,7 @@ def upsert_telegram_user(
             language_code=language_code,
             message_count=0,
         )
-        db.add(user)
-        db.flush()
+        users.add(user)
     else:
         user.username = username
         user.first_name = first_name

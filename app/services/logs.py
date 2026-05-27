@@ -2,16 +2,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.models import ErrorLog, Message, TelegramUser
+from app.repositories.users import TelegramUserRepository
 
 
 def list_users(db: Session, limit: int = 100) -> list[TelegramUser]:
-    return list(
-        db.scalars(
-            select(TelegramUser)
-            .order_by(TelegramUser.last_seen_at.desc())
-            .limit(limit)
-        ).all()
-    )
+    return TelegramUserRepository(db).list_recent(limit=limit)
 
 
 def list_messages(db: Session, limit: int = 100) -> list[Message]:
