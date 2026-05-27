@@ -1,8 +1,9 @@
 import traceback
+import uuid
 
 from sqlalchemy.orm import Session
 
-from app.models import ErrorLog, TelegramUser
+from app.models import ErrorLog, TelegramUser, utc_now
 
 
 def log_error(
@@ -20,4 +21,13 @@ def log_error(
         details="".join(traceback.format_exception(error))[:4000],
     )
     db.add(entry)
+    return entry
+
+
+def resolve_error(db: Session, error_id: uuid.UUID) -> ErrorLog | None:
+    entry = db.get(ErrorLog, error_id)
+    if entry is None:
+        return None
+    entry.resolved = True
+    entry.resolved_at = utc_now()
     return entry

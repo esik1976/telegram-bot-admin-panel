@@ -76,6 +76,7 @@ erDiagram
         text details
         datetime created_at
         bool resolved
+        datetime resolved_at
     }
 
     AUDIT_LOGS {
@@ -205,6 +206,7 @@ erDiagram
 | `details` | text | нет | Stack trace или технический фрагмент. |
 | `created_at` | datetime | да | Дата ошибки. |
 | `resolved` | bool | да | Отмечена ли ошибка как решенная. |
+| `resolved_at` | datetime | нет | Когда ошибка была отмечена как решенная. |
 
 ### `audit_logs`
 

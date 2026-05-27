@@ -90,6 +90,7 @@ REST API:
 - `GET /api/users`
 - `GET /api/messages`
 - `GET /api/errors`
+- `PUT /api/errors/{error_id}/resolve`
 - `GET /api/prompts/active`
 - `POST /api/prompts`
 - `GET /api/settings/active`

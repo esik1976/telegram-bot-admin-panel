@@ -92,6 +92,7 @@ class ErrorRead(BaseModel):
     details: str | None
     created_at: datetime
     resolved: bool
+    resolved_at: datetime | None
 
 
 class TelegramUserEvent(BaseModel):

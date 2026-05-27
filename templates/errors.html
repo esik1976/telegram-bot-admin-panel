@@ -16,6 +16,7 @@
           <th>Type</th>
           <th>User</th>
           <th>Resolved</th>
+          <th>Resolved At</th>
           <th>Message</th>
         </tr>
       </thead>
@@ -33,11 +34,12 @@
               {% endif %}
             </td>
             <td>{{ "yes" if error.resolved else "no" }}</td>
+            <td>{{ error.resolved_at or "-" }}</td>
             <td class="content-cell">{{ error.message }}</td>
           </tr>
         {% else %}
           <tr>
-            <td colspan="6" class="empty-cell">Пока нет ошибок.</td>
+            <td colspan="7" class="empty-cell">Пока нет ошибок.</td>
           </tr>
         {% endfor %}
       </tbody>

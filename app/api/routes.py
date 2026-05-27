@@ -1,4 +1,5 @@
 import hmac
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
@@ -23,6 +24,7 @@ from app.schemas import (
     TelegramUserEvent,
     UserRead,
 )
+from app.services.errors import resolve_error
 from app.services.logs import list_errors, list_messages, list_users
 from app.services.messages import log_message
 from app.services.settings import create_prompt_version, get_active_prompt, get_active_settings, update_active_settings
@@ -105,9 +107,32 @@ def errors(db: Session = Depends(get_db), limit: int = 100) -> list[ErrorRead]:
             details=error.details,
             created_at=error.created_at,
             resolved=error.resolved,
+            resolved_at=error.resolved_at,
         )
         for error in list_errors(db, limit=limit)
     ]
+
+
+@router.put("/errors/{error_id}/resolve", response_model=ErrorRead, summary="Mark error as resolved")
+def resolve_error_log(error_id: uuid.UUID, db: Session = Depends(get_db)) -> ErrorRead:
+    error = resolve_error(db, error_id)
+    if error is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Error log not found")
+    db.commit()
+    db.refresh(error)
+    return ErrorRead(
+        id=error.id,
+        telegram_user_id=error.telegram_user_id,
+        telegram_id=error.telegram_user.telegram_id if error.telegram_user else None,
+        username=error.telegram_user.username if error.telegram_user else None,
+        source=error.source,
+        error_type=error.error_type,
+        message=error.message,
+        details=error.details,
+        created_at=error.created_at,
+        resolved=error.resolved,
+        resolved_at=error.resolved_at,
+    )
 
 
 @router.get("/prompts/active", response_model=PromptRead, summary="Get active prompt")
