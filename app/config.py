@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     internal_api_token: str = "change-me"
     backend_api_url: str = "http://127.0.0.1:8000"
     worker_mode: str = "service"
+    cors_origins: str = "http://127.0.0.1:3000,http://localhost:3000"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

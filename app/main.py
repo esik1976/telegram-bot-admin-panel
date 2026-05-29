@@ -1,12 +1,22 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router as api_router
+from app.config import get_settings
 from app.web.routes import router as web_router
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
     app = FastAPI(title="Telegram Bot Admin Panel")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origin_list,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.mount("/static", StaticFiles(directory="static"), name="static")
     app.include_router(api_router)
     app.include_router(web_router)
