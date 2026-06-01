@@ -1,0 +1,15 @@
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.git
+.gitignore
+.env
+bot_admin.db
+bot_admin.db-journal
+*.log

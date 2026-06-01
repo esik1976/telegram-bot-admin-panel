@@ -1,0 +1,82 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tg_admin_panel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tg_admin_panel"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+    environment:
+      APP_ENV: docker
+      APP_SECRET_KEY: ${APP_SECRET_KEY:-change-me}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/tg_admin_panel
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openrouter}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-openai/gpt-4o-mini}
+      HTTP_SSL_VERIFY: ${HTTP_SSL_VERIFY:-true}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-internal-token}
+      BACKEND_API_URL: http://backend:8000
+      WORKER_MODE: service
+      CORS_ORIGINS: http://127.0.0.1:3000,http://localhost:3000
+    command: >
+      sh -c "python -m alembic upgrade head &&
+             python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+    profiles:
+      - worker
+    environment:
+      APP_ENV: docker
+      APP_SECRET_KEY: ${APP_SECRET_KEY:-change-me}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/tg_admin_panel
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openrouter}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-openai/gpt-4o-mini}
+      HTTP_SSL_VERIFY: ${HTTP_SSL_VERIFY:-true}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-internal-token}
+      BACKEND_API_URL: http://backend:8000
+      WORKER_MODE: api
+      CORS_ORIGINS: http://127.0.0.1:3000,http://localhost:3000
+    command: ["python", "-m", "app.bot_worker"]
+    depends_on:
+      backend:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ../../../lesson-8-frontend-development/project/frontend-admin
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres-data:
